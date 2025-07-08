@@ -22,78 +22,53 @@ $advertisements = $ads_stmt->fetchAll(PDO::FETCH_ASSOC);
 include 'includes/header.php';
 ?>
 
-<!-- Home Section -->
 <section class="hero" id="home">
-    <!-- Enhanced Advertisement Slider -->
-    <div class="ad-slider">
-        <?php if (!empty($advertisements)): ?>
-            <?php foreach ($advertisements as $index => $ad): ?>
-                <div class="ad-slide <?php echo $index === 0 ? 'active' : ''; ?>">
-                    <img src="assets/images/ads/<?php echo $ad['image']; ?>" alt="<?php echo htmlspecialchars($ad['title']); ?>">
-                    <div class="ad-overlay">
-                        <div class="ad-content">
-                            <h2><?php echo htmlspecialchars($ad['title']); ?></h2>
-                            <?php if ($ad['link']): ?>
-                                <a href="<?php echo $ad['link']; ?>" class="ad-cta">Shop Now</a>
-                            <?php endif; ?>
+    <div class="hero-grid-container">
+        <div class="hero-left-column">
+            <div class="ad-slider">
+                <?php if (!empty($advertisements)): ?>
+                    <?php foreach ($advertisements as $index => $ad): ?>
+                        <div class="ad-slide">
+                            <img src="assets/images/ads/<?php echo htmlspecialchars($ad['image']); ?>" alt="<?php echo htmlspecialchars($ad['title']); ?>">
+                            <div class="ad-card-label">
+                                <span>Promotion</span>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <!-- Default slides if no ads in database -->
-            <div class="ad-slide active">
-                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-S3MvD60JBcm876z45W1nuNKEqL39r3.png" alt="Summer Collection 2024">
-                <div class="ad-overlay">
-                    <div class="ad-content">
-                        <h2>Summer Collection 2024</h2>
-                        <a href="products.php?category=casual" class="ad-cta">Shop Now</a>
-                    </div>
-                </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
-            <div class="ad-slide">
-                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-S3MvD60JBcm876z45W1nuNKEqL39r3.png" alt="Formal Wear Sale">
-                <div class="ad-overlay">
-                    <div class="ad-content">
-                        <h2>Formal Wear Sale</h2>
-                        <a href="products.php?category=formal" class="ad-cta">Shop Now</a>
-                    </div>
-                </div>
-            </div>
-            <div class="ad-slide">
-                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-S3MvD60JBcm876z45W1nuNKEqL39r3.png" alt="New Arrivals">
-                <div class="ad-overlay">
-                    <div class="ad-content">
-                        <h2>New Arrivals</h2>
-                        <a href="products.php" class="ad-cta">Shop Now</a>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-        
-        <div class="ad-controls">
-            <button class="ad-prev" onclick="changeSlide(-1)">❮</button>
-            <button class="ad-next" onclick="changeSlide(1)">❯</button>
         </div>
-        <div class="ad-indicators">
-            <?php 
-            $slide_count = !empty($advertisements) ? count($advertisements) : 3;
-            for ($i = 0; $i < $slide_count; $i++): 
-            ?>
-                <span class="indicator <?php echo $i === 0 ? 'active' : ''; ?>" onclick="currentSlideSet(<?php echo $i + 1; ?>)"></span>
-            <?php endfor; ?>
-        </div>
-    </div>
 
-    <div class="hero-filters">
-        <button class="filter-btn active" data-filter="all">ALL <span>></span></button>
-        <button class="filter-btn" data-filter="men">MEN <span>></span></button>
-        <button class="filter-btn" data-filter="women">WOMEN <span>></span></button>
-        <button class="filter-btn" data-filter="unisex">UNISEX <span>></span></button>
+        <div class="hero-right-column">
+            <div class="proud-section-group">
+                <div class="proud-text">
+                    WE'RE<br>PROUD<br>OF<br>OUR<br>CLOTHES
+                </div>
+                <div class="hero-filters">
+                    <button class="filter-btn active" data-filter="all">ALL <span>></span></button>
+                    <button class="filter-btn" data-filter="men">MEN <span>></span></button>
+                    <button class="filter-btn" data-filter="women">WOMEN <span>></span></button>
+                    <button class="filter-btn" data-filter="unisex">UNISEX <span>></span></button>
+                </div>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <i class="fas fa-globe"></i>
+                        <span>ECO-FRIENDLY PACKAGING</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-arrows-alt-h"></i>
+                        <span>INCLUSIVE SIZES</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-palette"></i>
+                        <span>DESIGNED BY LOCALS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- Featured Products -->
 <section class="featured-products">
     <div class="container">
         <h2 class="section-title">Featured Products</h2>
@@ -139,25 +114,45 @@ include 'includes/header.php';
     </div>
 </section>
 
-<!-- Enhanced About Section -->
-<section class="about-section" id="about">
+<section class="about-section-modern" id="about">
     <div class="container">
-        <h2 class="section-title">About Yarac</h2>
-        <div class="about-content">
-            <div class="about-text">
-                <h3>Our Story</h3>
-                <p>Yarac didirikan dengan visi untuk menghadirkan fashion berkualitas tinggi yang terjangkau untuk semua kalangan. Sejak tahun 2020, kami telah melayani ribuan pelanggan di seluruh Indonesia dengan komitmen pada kualitas, style, dan kepuasan pelanggan.</p>
-                
-                <p>Kami percaya bahwa fashion adalah bentuk ekspresi diri yang powerful. Setiap piece dalam koleksi kami dipilih dengan cermat untuk memastikan Anda tampil percaya diri dalam setiap kesempatan.</p>
-                
-                <h3>Why Choose Yarac?</h3>
-                <p>Dengan pengalaman bertahun-tahun di industri fashion, kami memahami kebutuhan dan keinginan pelanggan modern. Tim kami bekerja keras untuk menghadirkan trend terbaru dengan kualitas terbaik.</p>
+        <div class="about-modern-grid">
+            <div class="about-modern-left">
+                <h2 class="about-modern-title">Our Story</h2>
+                <p class="about-modern-text">
+                    Yarac didirikan dengan visi untuk menghadirkan fashion berkualitas tinggi yang terjangkau untuk semua kalangan. Sejak tahun 2020, kami telah melayani ribuan pelanggan di seluruh Indonesia dengan komitmen pada kualitas, style, dan kepuasan pelanggan.
+                </p>
+                <p class="about-modern-text">
+                    Kami percaya bahwa fashion adalah bentuk ekspresi diri yang powerful. Setiap piece dalam koleksi kami dipilih dengan cermat untuk memastikan Anda tampil percaya diri dalam setiap kesempatan.
+                </p>
+            </div>
+            <div class="about-modern-right">
+                <img src="assets/images/Yarac LOgo.png" alt="Yarac Team" class="about-modern-image">
+            </div>
+        </div>
+        <div class="why-choose-us">
+            <h3>Why Choose Yarac?</h3>
+            <div class="reasons-grid">
+                <div class="reason-item">
+                    <span class="reason-number">01</span>
+                    <h4 class="reason-title">Premium Quality</h4>
+                    <p class="reason-desc">Kami hanya menggunakan bahan-bahan terbaik untuk kenyamanan dan daya tahan maksimal.</p>
+                </div>
+                <div class="reason-item">
+                    <span class="reason-number">02</span>
+                    <h4 class="reason-title">Latest Trends</h4>
+                    <p class="reason-desc">Tim kami bekerja keras untuk menghadirkan tren fashion terbaru langsung untuk Anda.</p>
+                </div>
+                <div class="reason-item">
+                    <span class="reason-number">03</span>
+                    <h4 class="reason-title">Customer First</h4>
+                    <p class="reason-desc">Kepuasan Anda adalah prioritas utama kami dalam setiap langkah.</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Categories -->
 <section class="categories">
     <div class="container">
         <h2 class="section-title">Shop by Category</h2>
@@ -181,27 +176,12 @@ include 'includes/header.php';
     </div>
 </section>
 
-<!-- Newsletter -->
-<section class="newsletter">
-    <div class="container">
-        <h2>Stay Updated</h2>
-        <p>Dapatkan info terbaru tentang koleksi dan promo menarik dari Yarac</p>
-        <form class="newsletter-form" id="newsletter-form" action="api/newsletter.php" method="POST">
-            <input type="email" name="email" placeholder="Enter your email address" required>
-            <button type="submit">
-                <i class="fas fa-paper-plane"></i> Subscribe
-            </button>
-        </form>
-    </div>
-</section>
-
-<!-- Enhanced Quick View Modal -->
 <div class="modal" id="quick-view-modal">
     <div class="modal-content">
         <span class="close" onclick="closeQuickView()">&times;</span>
         <div class="modal-body">
             <div class="modal-image">
-                <img id="modal-product-image" src="/placeholder.svg" alt="">
+                <img id="modal-product-image" src="" alt="">
             </div>
             <div class="modal-info">
                 <div class="product-category" id="modal-product-category"></div>
@@ -212,7 +192,7 @@ include 'includes/header.php';
                 </div>
                 <div class="product-price" id="modal-product-price"></div>
                 <div class="product-description" id="modal-product-description"></div>
-                
+
                 <div class="size-selector">
                     <label for="modal-size">Size:</label>
                     <select id="modal-size">
@@ -222,12 +202,12 @@ include 'includes/header.php';
                         <option value="XL">XL</option>
                     </select>
                 </div>
-                
+
                 <div class="quantity-selector">
                     <label for="modal-quantity">Quantity:</label>
                     <input type="number" id="modal-quantity" value="1" min="1" max="10">
                 </div>
-                
+
                 <button class="btn-add-cart-modal" onclick="addToCartFromModal()">
                     <i class="fas fa-cart-plus"></i> Add to Cart
                 </button>
@@ -235,124 +215,5 @@ include 'includes/header.php';
         </div>
     </div>
 </div>
-
-<script>
-// Enhanced JavaScript for homepage functionality
-let currentSlideIndex = 0;
-let slideInterval;
-
-// Auto slide functionality
-function startSlideShow() {
-    slideInterval = setInterval(() => {
-        changeSlide(1);
-    }, 5000);
-}
-
-function stopSlideShow() {
-    clearInterval(slideInterval);
-}
-
-function changeSlide(direction) {
-    const slides = document.querySelectorAll('.ad-slide');
-    const indicators = document.querySelectorAll('.indicator');
-    
-    slides[currentSlideIndex].classList.remove('active');
-    indicators[currentSlideIndex].classList.remove('active');
-    
-    currentSlideIndex += direction;
-    
-    if (currentSlideIndex >= slides.length) {
-        currentSlideIndex = 0;
-    } else if (currentSlideIndex < 0) {
-        currentSlideIndex = slides.length - 1;
-    }
-    
-    slides[currentSlideIndex].classList.add('active');
-    indicators[currentSlideIndex].classList.add('active');
-}
-
-function currentSlideSet(slideIndex) {
-    const slides = document.querySelectorAll('.ad-slide');
-    const indicators = document.querySelectorAll('.indicator');
-    
-    slides[currentSlideIndex].classList.remove('active');
-    indicators[currentSlideIndex].classList.remove('active');
-    
-    currentSlideIndex = slideIndex - 1;
-    
-    slides[currentSlideIndex].classList.add('active');
-    indicators[currentSlideIndex].classList.add('active');
-}
-
-// Enhanced filter functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const productCards = document.querySelectorAll('.product-card');
-    
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
-            
-            // Update active button
-            filterBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Filter products with animation
-            productCards.forEach(card => {
-                const category = card.getAttribute('data-category');
-                const gender = card.getAttribute('data-gender');
-                
-                if (filter === 'all' || gender === filter) {
-                    card.style.display = 'block';
-                    card.classList.add('fade-in');
-                } else {
-                    card.style.display = 'none';
-                    card.classList.remove('fade-in');
-                }
-            });
-        });
-    });
-    
-    // Category card click handlers
-    document.querySelectorAll('.category-card').forEach(card => {
-        card.addEventListener('click', function() {
-            const category = this.getAttribute('data-category');
-            window.location.href = `products.php?category=${category}`;
-        });
-    });
-    
-    // Start slideshow
-    startSlideShow();
-    
-    // Pause slideshow on hover
-    const slider = document.querySelector('.ad-slider');
-    slider.addEventListener('mouseenter', stopSlideShow);
-    slider.addEventListener('mouseleave', startSlideShow);
-});
-
-// Newsletter form submission
-document.getElementById('newsletter-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch('api/newsletter.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Thank you for subscribing!', 'success');
-            this.reset();
-        } else {
-            showNotification(data.message || 'Subscription failed', 'error');
-        }
-    })
-    .catch(error => {
-        showNotification('An error occurred', 'error');
-    });
-});
-</script>
 
 <?php include 'includes/footer.php'; ?>

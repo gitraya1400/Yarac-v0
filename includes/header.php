@@ -30,7 +30,7 @@ if (session_status() == PHP_SESSION_NONE) {
                 <a href="index.php#about">ABOUT</a>
             </div>
             <div class="nav-logo">
-                <img src="assets/image/Yarac LOgo.png" alt="Yarac Logo" id="logo">
+                <img src="assets/images/Yarac LOgo.png" alt="Yarac Logo" id="logo">
             </div>
             <div class="nav-auth">
                 <?php if(isset($_SESSION['user_id'])): ?>

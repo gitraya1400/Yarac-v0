@@ -26,7 +26,7 @@
                 <!-- Brand Section -->
                 <div class="footer-section brand-section">
                     <div class="footer-logo">
-                        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-S3MvD60JBcm876z45W1nuNKEqL39r3.png" alt="Yarac Logo">
+                        <img src="assets/images/Yarac LOgo.png" alt="Yarac Logo">
                         <h3>Yarac</h3>
                     </div>
                     <p>Fashion store terpercaya untuk gaya hidup modern Anda. Kami menghadirkan koleksi terbaru dengan kualitas premium dan harga terjangkau sejak 2020.</p>
@@ -40,11 +40,6 @@
                                 <i class="fab fa-instagram"></i>
                                 <span class="follower-count">12.5K</span>
                             </a>
-                            <a href="https://wa.me/6281234567890" target="_blank" class="social-icon whatsapp" data-platform="WhatsApp">
-                                <div class="icon-bg"></div>
-                                <i class="fab fa-whatsapp"></i>
-                                <span class="status-indicator"></span>
-                            </a>
                             <a href="https://youtube.com/yarac" target="_blank" class="social-icon youtube" data-platform="YouTube">
                                 <div class="icon-bg"></div>
                                 <i class="fab fa-youtube"></i>
@@ -54,11 +49,6 @@
                                 <div class="icon-bg"></div>
                                 <i class="fab fa-tiktok"></i>
                                 <span class="follower-count">25.1K</span>
-                            </a>
-                            <a href="https://facebook.com/yarac" target="_blank" class="social-icon facebook" data-platform="Facebook">
-                                <div class="icon-bg"></div>
-                                <i class="fab fa-facebook-f"></i>
-                                <span class="follower-count">15.8K</span>
                             </a>
                         </div>
                     </div>
@@ -314,7 +304,7 @@
     }
 
     .footer-logo img {
-        height: 60px;
+        height: 80px;
         filter: brightness(0) invert(1);
     }
 

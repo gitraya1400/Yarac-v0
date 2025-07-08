@@ -1,5 +1,5 @@
 <?php
-require_once 'config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 class User {
     private $conn;
@@ -19,7 +19,7 @@ class User {
         $this->conn = $db;
     }
 
-    // Register user
+    // [FINAL] Register user dengan enkripsi password
     public function register() {
         $query = "INSERT INTO " . $this->table_name . " 
                   SET first_name=:first_name, last_name=:last_name, email=:email, 
@@ -27,7 +27,7 @@ class User {
 
         $stmt = $this->conn->prepare($query);
 
-        // Hash password
+        // Enkripsi password sebelum disimpan
         $this->password = password_hash($this->password, PASSWORD_DEFAULT);
 
         $stmt->bindParam(":first_name", $this->first_name);
@@ -44,7 +44,7 @@ class User {
         return false;
     }
 
-    // Login user
+    // [FINAL] Login user dengan verifikasi password yang aman
     public function login($email, $password) {
         $query = "SELECT id, first_name, last_name, email, password, phone, address, role 
                   FROM " . $this->table_name . " WHERE email = ? LIMIT 1";
@@ -54,6 +54,7 @@ class User {
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        // Memverifikasi password yang diketik dengan hash di database
         if ($row && password_verify($password, $row['password'])) {
             $this->id = $row['id'];
             $this->first_name = $row['first_name'];

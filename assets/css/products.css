@@ -2,7 +2,10 @@
 
 .products-header {
   padding: 180px 0 100px;
-  background: linear-gradient(135deg, var(--moss-green) 0%, var(--olive-drab) 100%);
+  background-image: url('../images/product_bg.png');
+  background-size: cover; /* Memastikan gambar menutupi seluruh area */
+  background-position: center; /* Memusatkan gambar */
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -1,7 +1,7 @@
 -- Updated database schema with enhanced features
-DROP DATABASE IF EXISTS yarac_store;
-CREATE DATABASE yarac_store;
-USE yarac_store;
+DROP DATABASE IF EXISTS yarac_store_final_updated;
+CREATE DATABASE yarac_store_final_updated;
+USE yarac_store_final_updated;
 
 -- Users table
 CREATE TABLE users (

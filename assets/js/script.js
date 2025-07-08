@@ -67,26 +67,37 @@ function toggleCart() {
   }
 }
 
+// GANTI FUNGSI addToCart LAMA ANDA DENGAN INI
+
 function addToCart(productId, size = "M", quantity = 1) {
+  // [FIX] Cek apakah pengguna sudah login atau belum
+  const authBtn = document.getElementById("auth-btn");
+  if (authBtn && authBtn.textContent.trim().toUpperCase() === "SIGN IN") {
+    // Jika tombol "SIGN IN" ada, berarti pengguna belum login
+    alert("Silakan login terlebih dahulu untuk menambahkan barang ke keranjang.");
+    window.location.href = 'login.php'; // Arahkan ke halaman login
+    return; // Hentikan fungsi di sini
+  }
+
   // Show loading state
-  const button = event.target
-  const originalText = button.innerHTML
-  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...'
-  button.disabled = true
+  const button = event.target;
+  const originalText = button.innerHTML;
+  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+  button.disabled = true;
 
   // Fetch product details
   fetch(`api/get_product.php?id=${productId}`)
     .then((response) => response.json())
     .then((product) => {
       if (product.error) {
-        throw new Error(product.error)
+        throw new Error(product.error);
       }
 
       // Check if product already exists in cart
-      const existingItem = cart.find((item) => item.id === productId && item.size === size)
+      const existingItem = cart.find((item) => item.id === productId && item.size === size);
 
       if (existingItem) {
-        existingItem.quantity += quantity
+        existingItem.quantity += quantity;
       } else {
         cart.push({
           id: productId,
@@ -96,44 +107,52 @@ function addToCart(productId, size = "M", quantity = 1) {
           size: size,
           quantity: quantity,
           category: product.category,
-        })
+        });
       }
 
       // Save to localStorage
-      localStorage.setItem("yarac_cart", JSON.stringify(cart))
+      localStorage.setItem("yarac_cart", JSON.stringify(cart));
 
       // Update UI
-      updateCartUI()
-      showNotification(`${product.name} added to cart!`, "success")
+      updateCartUI();
+      showNotification(`${product.name} added to cart!`, "success");
 
       // Animate cart icon
-      animateCartIcon()
+      animateCartIcon();
     })
     .catch((error) => {
-      console.error("Error adding to cart:", error)
-      showNotification("Failed to add product to cart", "error")
+      console.error("Error adding to cart:", error);
+      showNotification("Failed to add product to cart", "error");
     })
     .finally(() => {
       // Restore button state
       setTimeout(() => {
-        button.innerHTML = originalText
-        button.disabled = false
-      }, 1000)
-    })
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }, 1000);
+    });
 }
 
+// GANTI FUNGSI addToCartFromModal LAMA DENGAN INI
 function addToCartFromModal() {
-  const productId = currentProduct.id
-  const size = document.getElementById("modal-size").value
-  const quantity = Number.parseInt(document.getElementById("modal-quantity").value)
+  // [FIX] Cek dulu apakah currentProduct ada isinya
+  if (!currentProduct) {
+    alert("Gagal menambahkan ke keranjang. Silakan coba lagi.");
+    return;
+  }
 
-  addToCart(productId, size, quantity)
-  closeQuickView()
+  const productId = currentProduct.id;
+  const size = document.getElementById("modal-size").value;
+  const quantity = parseInt(document.getElementById("modal-quantity").value);
+
+  addToCart(productId, size, quantity);
+  closeQuickView(); // Tutup modal setelah berhasil
 }
 
 function removeFromCart(productId, size) {
-  cart = cart.filter((item) => !(item.id === productId && item.size === size))
-  localStorage.setItem("yarac_cart", JSON.stringify(cart))
+// [FIX] Kode Baru dengan Perbandingan yang Benar
+cart = cart.filter((item) => !(Number(item.id) === Number(productId) && item.size === size))  
+localStorage.setItem("yarac_cart", JSON.stringify(cart))
   updateCartUI()
   showNotification("Item removed from cart", "info")
 }
@@ -198,7 +217,8 @@ function updateCartDisplay() {
                         <span style="margin-left: 10px; font-size: 12px; color: var(--moss-green);">Size: ${item.size}</span>
                     </div>
                 </div>
-                <button class="remove-item" onclick="removeFromCart(${item.id}, '${item.size}')">Remove</button>
+
+<button class="remove-item" onclick="removeFromCart(${item.id}, '${item.size}')">Remove</button>
             </div>
         `
     })
@@ -216,61 +236,59 @@ function animateCartIcon() {
 }
 
 // Enhanced Quick View functionality
+// GANTI FUNGSI quickView LAMA DENGAN INI
 function quickView(productId) {
-  // Show loading state
-  const modal = document.getElementById("quick-view-modal")
-  modal.style.display = "block"
+  const modal = document.getElementById("quick-view-modal");
+  modal.style.display = "block";
+  const modalContent = modal.querySelector(".modal-content");
+  modalContent.classList.add("loading");
 
-  // Add loading class to modal content
-  const modalContent = modal.querySelector(".modal-content")
-  modalContent.classList.add("loading")
-
-  // Fetch product details
   fetch(`api/get_product.php?id=${productId}`)
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((product) => {
       if (product.error) {
-        throw new Error(product.error)
+        throw new Error(product.error);
       }
 
-      currentProduct = product
+      // Data produk berhasil didapat, simpan di variabel global
+      currentProduct = product;
 
-      // Populate modal with product data
-      document.getElementById("modal-product-image").src = `assets/images/products/${product.image}`
-      document.getElementById("modal-product-category").textContent = product.category.toUpperCase()
-      document.getElementById("modal-product-name").textContent = product.name
-      document.getElementById("modal-product-price").textContent = `Rp ${formatPrice(product.price)}`
-      document.getElementById("modal-product-description").textContent =
-        product.description || "No description available."
+      // Mengisi modal dengan data, termasuk review
+      document.getElementById("modal-product-image").src = `assets/images/products/${product.image}`;
+      document.getElementById("modal-product-category").textContent = product.category.toUpperCase();
+      document.getElementById("modal-product-name").textContent = product.name;
+      document.getElementById("modal-product-price").textContent = `Rp ${new Intl.NumberFormat('id-ID').format(product.price)}`;
+      document.getElementById("modal-product-description").textContent = product.description || "No description available.";
 
-      // Update rating
-      const starsContainer = document.getElementById("modal-stars")
-      const rating = product.rating || 0
-      starsContainer.innerHTML = ""
+      const starsContainer = document.getElementById("modal-stars");
+      const rating = product.rating || 0;
+      starsContainer.innerHTML = "";
       for (let i = 1; i <= 5; i++) {
-        const star = document.createElement("span")
-        star.className = `star ${i <= rating ? "" : "empty"}`
-        star.textContent = "★"
-        starsContainer.appendChild(star)
+        const star = document.createElement("span");
+        star.className = `star ${i <= rating ? "" : "empty"}`;
+        star.textContent = "★";
+        starsContainer.appendChild(star);
       }
+      document.getElementById("modal-rating-text").textContent = `(${product.total_reviews || 0} reviews)`;
 
-      document.getElementById("modal-rating-text").textContent = `(${product.total_reviews || 0} reviews)`
-
-      // Update size options if available
       if (product.sizes && Array.isArray(product.sizes)) {
-        const sizeSelect = document.getElementById("modal-size")
-        sizeSelect.innerHTML = product.sizes.map((size) => `<option value="${size}">${size}</option>`).join("")
+        const sizeSelect = document.getElementById("modal-size");
+        sizeSelect.innerHTML = product.sizes.map((size) => `<option value="${size}">${size}</option>`).join("");
       }
     })
     .catch((error) => {
-      console.error("Error fetching product:", error)
-      showNotification("Failed to load product details", "error")
-      closeQuickView()
+      console.error("Error fetching product:", error);
+      showNotification("Failed to load product details", "error");
+      // Jangan tutup modal, biarkan pengguna melihat error
     })
     .finally(() => {
-      // Remove loading state
-      modalContent.classList.remove("loading")
-    })
+      modalContent.classList.remove("loading");
+    });
 }
 
 function closeQuickView() {
@@ -536,19 +554,7 @@ function initializeLazyLoading() {
 // Initialize lazy loading if needed
 document.addEventListener("DOMContentLoaded", initializeLazyLoading)
 
-// Service Worker registration for PWA (optional)
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        console.log("ServiceWorker registration successful")
-      })
-      .catch((err) => {
-        console.log("ServiceWorker registration failed")
-      })
-  })
-}
+
 
 // Export functions for global access
 window.yaracStore = {

@@ -1,7 +1,7 @@
 <?php
 class Database {
     private $host = 'localhost';
-    private $db_name = 'yarac_store';
+    private $db_name = 'yarac_store_final_updated';
     private $username = 'root';
     private $password = '';
     public $conn;

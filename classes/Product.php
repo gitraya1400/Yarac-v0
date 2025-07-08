@@ -1,5 +1,5 @@
 <?php
-require_once 'config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 class Product {
     private $conn;
@@ -91,36 +91,41 @@ class Product {
     }
 
     // Get single product with reviews
-    public function getById($id) {
-        $query = "SELECT p.*, 
-                  (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id) as avg_rating,
-                  (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.id) as review_count
-                  FROM " . $this->table_name . " p WHERE p.id = ? LIMIT 1";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $id);
-        $stmt->execute();
-        
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($row) {
-            $this->id = $row['id'];
-            $this->name = $row['name'];
-            $this->price = $row['price'];
-            $this->category = $row['category'];
-            $this->gender = $row['gender'];
-            $this->image = $row['image'];
-            $this->description = $row['description'];
-            $this->stock = $row['stock'];
-            $this->rating = $row['avg_rating'] ? round($row['avg_rating'], 1) : 0;
-            $this->total_reviews = $row['review_count'];
-            $this->sizes = json_decode($row['sizes'] ?? '["S", "M", "L", "XL"]', true);
-            $this->featured = $row['featured'];
-            $this->created_at = $row['created_at'];
-            return true;
-        }
-        return false;
-    }
+ // GANTI SELURUH FUNGSI getById DI classes/Product.php DENGAN INI
 
+public function getById($id) {
+    $query = "SELECT p.*, 
+              (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.id) as avg_rating,
+              (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.id) as review_count
+              FROM " . $this->table_name . " p WHERE p.id = ? LIMIT 1";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(1, $id);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        $this->id = $row['id'];
+        $this->name = $row['name'];
+        $this->price = $row['price'];
+        $this->category = $row['category'];
+        $this->gender = $row['gender'];
+        $this->image = $row['image'];
+        $this->description = $row['description'];
+        $this->stock = $row['stock'];
+        $this->rating = $row['avg_rating'] ? round($row['avg_rating'], 1) : 0;
+        $this->total_reviews = $row['review_count'];
+
+        // [FIX] Mengganti operator '??' dengan 'isset()' agar kompatibel
+        $sizes_json = isset($row['sizes']) ? $row['sizes'] : '["S", "M", "L", "XL"]';
+        $this->sizes = json_decode($sizes_json, true);
+
+        $this->featured = $row['featured'];
+        $this->created_at = $row['created_at'];
+        return true;
+    }
+    return false;
+}
     // Get featured products
     public function getFeatured($limit = 4) {
         $query = "SELECT * FROM " . $this->table_name . " WHERE stock > 0 AND featured = 1 ORDER BY rating DESC, created_at DESC LIMIT " . $limit;

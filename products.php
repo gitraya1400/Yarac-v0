@@ -1,7 +1,7 @@
 <?php
 $page_title = "Products - Yarac Fashion Store";
 $additional_css = ['products.css'];
-$additional_js = ['product.js'];
+//$additional_js = ['product.js'];
 
 require_once 'config/database.php';
 require_once 'classes/Product.php';
@@ -150,9 +150,10 @@ include 'includes/header.php';
                             <button class="btn-add-cart" onclick="addToCart(<?php echo $row['id']; ?>)">
                                 <i class="fas fa-cart-plus"></i> Add to Cart
                             </button>
-                            <button class="btn-quick-view" onclick="quickView(<?php echo $row['id']; ?>)">
-                                <i class="fas fa-eye"></i> Quick View
-                            </button>
+                                <button class="btn-quick-view" onclick="quickView(<?php echo $row['id']; ?>)">
+                                    <i class="fas fa-eye"></i> Quick View
+                                </button>
+                        </button>
                         </div>
                     </div>
                 </div>
@@ -208,99 +209,5 @@ include 'includes/header.php';
         </div>
     </div>
             </div>
-
-<script>
-// Update sort function
-function updateSort() {
-    const sortValue = document.getElementById('sort-select').value;
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('sort', sortValue);
-    window.location.href = 'products.php?' + urlParams.toString();
-}
-
-// Enhanced search functionality
-let searchTimeout;
-const searchInput = document.getElementById('search-input');
-const searchSuggestions = document.getElementById('search-suggestions');
-
-searchInput.addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    const query = this.value.trim();
-    
-    if (query.length >= 2) {
-        searchTimeout = setTimeout(() => {
-            fetchSearchSuggestions(query);
-        }, 300);
-    } else {
-        hideSuggestions();
-    }
-});
-
-searchInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        performSearch();
-    }
-});
-
-function fetchSearchSuggestions(query) {
-    fetch(`api/search_suggestions.php?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(data => {
-            displaySuggestions(data);
-        })
-        .catch(error => {
-            console.error('Search suggestions error:', error);
-        });
-}
-
-function displaySuggestions(suggestions) {
-    if (suggestions.length === 0) {
-        searchSuggestions.innerHTML = '<div class="no-suggestions">No suggestions found</div>';
-    } else {
-        searchSuggestions.innerHTML = suggestions.map(item => `
-            <div class="suggestion-item" onclick="selectSuggestion('${item.name}')">
-                <img src="assets/images/products/${item.image}" alt="${item.name}">
-                <div class="suggestion-info">
-                    <div class="suggestion-name">${item.name}</div>
-                    <div class="suggestion-category">${item.category}</div>
-                </div>
-                <div class="suggestion-price">Rp ${formatPrice(item.price)}</div>
-            </div>
-        `).join('');
-    }
-    
-    searchSuggestions.classList.add('show');
-}
-
-function hideSuggestions() {
-    searchSuggestions.classList.remove('show');
-}
-
-function selectSuggestion(productName) {
-    searchInput.value = productName;
-    hideSuggestions();
-    performSearch();
-}
-
-function performSearch() {
-    const query = searchInput.value.trim();
-    if (query) {
-        window.location.href = `products.php?search=${encodeURIComponent(query)}`;
-    }
-}
-
-// Hide suggestions when clicking outside
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.search-container')) {
-        hideSuggestions();
-    }
-});
-
-// Format price function
-function formatPrice(price) {
-    return new Intl.NumberFormat('id-ID').format(price);
-}
-</script>
 
 <?php include 'includes/footer.php'; ?>

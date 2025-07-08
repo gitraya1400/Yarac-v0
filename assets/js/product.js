@@ -392,35 +392,72 @@ function createRippleEffect(event, element) {
   }, 600)
 }
 
+// ===== FUNGSI QUICK VIEW YANG DIPERBAIKI =====
+
 // Enhanced product quick view
 function quickViewProduct(productId) {
-  // Show loading overlay
-  showLoadingOverlay()
+    console.log('Quick View called with ID:', productId);
+    
+    // Validasi productId
+    if (!productId || isNaN(productId)) {
+        alert('ID produk tidak valid');
+        return;
+    }
 
-  // Fetch product details with enhanced error handling
-  fetch(`api/get_product.php?id=${productId}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      return response.json()
-    })
-    .then((product) => {
-      if (product.error) {
-        throw new Error(product.error)
-      }
+    // Show loading overlay
+    showLoadingOverlay();
 
-      // Populate and show quick view modal
-      populateQuickViewModal(product)
-      showQuickViewModal()
-    })
-    .catch((error) => {
-      console.error("Error fetching product:", error)
-      alert("Failed to load product details")
-    })
-    .finally(() => {
-      hideLoadingOverlay()
-    })
+    // Fetch product details dengan enhanced error handling
+    fetch(`api/get_product.php?id=${productId}`)
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers.get('content-type'));
+            
+            // Cek apakah response ok
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            // Cek content type
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                return response.text().then(text => {
+                    console.error('Response bukan JSON:', text);
+                    throw new Error('Server mengembalikan response non-JSON: ' + text.substring(0, 100));
+                });
+            }
+            
+            return response.json();
+        })
+        .then(product => {
+            console.log('Data produk diterima:', product);
+            
+            if (product.error) {
+                throw new Error(product.error);
+            }
+
+            // Populate and show quick view modal
+            populateQuickViewModal(product);
+            showQuickViewModal();
+        })
+        .catch(error => {
+            console.error('Error mengambil produk:', error);
+            
+            // Tampilkan pesan error yang user-friendly
+            let errorMessage = 'Gagal memuat detail produk';
+            if (error.message.includes('not valid JSON')) {
+                errorMessage = 'Error konfigurasi server. Silakan hubungi support.';
+            } else if (error.message.includes('HTTP error')) {
+                errorMessage = 'Produk tidak ditemukan atau error server';
+            } else if (error.message.includes('non-JSON')) {
+                errorMessage = 'Terjadi error pada server. Silakan coba lagi.';
+            }
+            
+            alert(errorMessage);
+        })
+        .finally(() => {
+            hideLoadingOverlay();
+        });
 }
 
 // Show loading overlay
@@ -430,7 +467,7 @@ function showLoadingOverlay() {
   overlay.innerHTML = `
         <div class="loading-spinner">
             <i class="fas fa-spinner fa-spin"></i>
-            <p>Loading product details...</p>
+            <p>Memuat detail produk...</p>
         </div>
     `
   overlay.style.cssText = `
@@ -456,6 +493,87 @@ function hideLoadingOverlay() {
   if (overlay) {
     overlay.remove()
   }
+}
+
+// Mengisi modal dengan error handling yang lebih baik
+function populateQuickViewModal(product) {
+    try {
+        console.log('Mengisi modal dengan produk:', product);
+        
+        // Update elemen dengan fallback yang aman
+        const updateElement = (id, value, fallback = '') => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value || fallback;
+            } else {
+                console.warn(`Element dengan ID '${id}' tidak ditemukan`);
+            }
+        };
+
+        const updateImageSrc = (id, src, alt = '') => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.src = src || 'assets/images/placeholder.jpg';
+                element.alt = alt;
+            }
+        };
+
+        // Update elemen modal
+        updateImageSrc('modal-product-image', `assets/images/products/${product.image}`, product.name);
+        updateElement('modal-product-category', product.category?.toUpperCase(), 'TIDAK BERKATEGORI');
+        updateElement('modal-product-name', product.name, 'Nama Produk');
+        updateElement('modal-product-price', `Rp ${formatPrice(product.price)}`, 'Harga tidak tersedia');
+        updateElement('modal-product-description', product.description, 'Tidak ada deskripsi tersedia');
+
+        // Update rating bintang
+        const starsContainer = document.getElementById('modal-stars');
+        if (starsContainer) {
+            const rating = product.rating || 0;
+            starsContainer.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = `star ${i <= rating ? '' : 'empty'}`;
+                star.textContent = '★';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        updateElement('modal-rating-text', `(${product.total_reviews || 0} ulasan)`);
+
+        // Update opsi ukuran
+        const sizeSelect = document.getElementById('modal-size');
+        if (sizeSelect && product.sizes) {
+            const sizes = Array.isArray(product.sizes) ? product.sizes : ['S', 'M', 'L', 'XL'];
+            sizeSelect.innerHTML = sizes.map(size => 
+                `<option value="${size}">${size}</option>`
+            ).join('');
+        }
+
+        // Simpan product untuk fungsi lain
+        window.currentQuickViewProduct = product;
+
+    } catch (error) {
+        console.error('Error mengisi modal:', error);
+        alert('Error menampilkan detail produk');
+    }
+}
+
+function showQuickViewModal() {
+    const modal = document.getElementById('quick-view-modal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Cegah scrolling background
+    } else {
+        console.error('Modal quick-view-modal tidak ditemukan');
+    }
+}
+
+function closeQuickView() {
+    const modal = document.getElementById('quick-view-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Kembalikan scrolling
+    }
 }
 
 // Advanced search filters
@@ -589,6 +707,21 @@ document.addEventListener("click", (event) => {
   }
 })
 
+// Tutup modal ketika klik di luar
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('quick-view-modal');
+    if (event.target === modal) {
+        closeQuickView();
+    }
+});
+
+// Tutup modal dengan tombol Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeQuickView();
+    }
+});
+
 // Export functions for global access
 window.productPage = {
   performLiveSearch,
@@ -598,7 +731,7 @@ window.productPage = {
   clearSearchResults,
 }
 
-// Inject CSS
+// Inject CSS untuk efek visual
 const rippleCSS = `
 .ripple {
     position: absolute;
@@ -648,6 +781,149 @@ const rippleCSS = `
     font-size: 1.1rem;
     opacity: 0.9;
 }
+/* Modal Styles */
+.modal {
+   display: none;
+   position: fixed;
+   z-index: 10000;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0,0,0,0.7);
+   backdrop-filter: blur(5px);
+}
+
+.modal-content {
+   background-color: #fefefe;
+   margin: 5% auto;
+   padding: 0;
+   border: none;
+   border-radius: 12px;
+   width: 90%;
+   max-width: 800px;
+   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+   animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+   from {
+       opacity: 0;
+       transform: translateY(-50px) scale(0.9);
+   }
+   to {
+       opacity: 1;
+       transform: translateY(0) scale(1);
+   }
+}
+
+.modal-body {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 2rem;
+   padding: 2rem;
+}
+
+.modal-image {
+   flex: 1;
+   min-width: 300px;
+}
+
+.modal-image img {
+   width: 100%;
+   height: auto;
+   border-radius: 8px;
+   object-fit: cover;
+}
+
+.modal-info {
+   flex: 1;
+   min-width: 300px;
+}
+
+.close {
+   position: absolute;
+   right: 15px;
+   top: 15px;
+   color: #aaa;
+   font-size: 28px;
+   font-weight: bold;
+   cursor: pointer;
+   z-index: 1;
+   width: 40px;
+   height: 40px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   border-radius: 50%;
+   transition: all 0.3s ease;
+}
+
+.close:hover,
+.close:focus {
+   color: #000;
+   background-color: #f1f1f1;
+}
+
+.size-selector,
+.quantity-selector {
+   margin: 1rem 0;
+}
+
+.size-selector label,
+.quantity-selector label {
+   display: block;
+   margin-bottom: 0.5rem;
+   font-weight: 600;
+   color: #333;
+}
+
+.size-selector select,
+.quantity-selector input {
+   width: 100%;
+   padding: 0.75rem;
+   border: 2px solid #ddd;
+   border-radius: 6px;
+   font-size: 1rem;
+   transition: border-color 0.3s ease;
+}
+
+.size-selector select:focus,
+.quantity-selector input:focus {
+   outline: none;
+   border-color: var(--olive-drab);
+}
+
+.btn-add-cart-modal {
+   width: 100%;
+   padding: 1rem;
+   background: linear-gradient(135deg, var(--olive-drab) 0%, var(--moss-green) 100%);
+   color: white;
+   border: none;
+   border-radius: 8px;
+   font-size: 1.1rem;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   margin-top: 1rem;
+}
+
+.btn-add-cart-modal:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 8px 25px rgba(43, 62, 52, 0.3);
+}
+
+@media (max-width: 768px) {
+   .modal-body {
+       flex-direction: column;
+       padding: 1rem;
+   }
+   
+   .modal-image,
+   .modal-info {
+       min-width: unset;
+   }
+}
 `
 
 // Inject CSS
@@ -655,13 +931,27 @@ const style = document.createElement("style")
 style.textContent = rippleCSS
 document.head.appendChild(style)
 
-// Declare functions used in quickViewProduct
-function populateQuickViewModal(product) {
-  // Implementation for populating the quick view modal
-  console.log("Populating quick view modal with product:", product)
+// Function untuk testing (bisa dihapus setelah berhasil)
+function testAPIEndpoint(productId = 1) {
+   console.log('Testing API endpoint dengan product ID:', productId);
+   
+   fetch(`api/get_product.php?id=${productId}`)
+       .then(response => response.text())
+       .then(text => {
+           console.log('Raw response:', text);
+           
+           try {
+               const json = JSON.parse(text);
+               console.log('JSON yang diparsing berhasil:', json);
+           } catch (e) {
+               console.error('Gagal parsing sebagai JSON:', e);
+               console.error('Raw text:', text.substring(0, 500));
+           }
+       })
+       .catch(error => {
+           console.error('Network error:', error);
+       });
 }
 
-function showQuickViewModal() {
-  // Implementation for showing the quick view modal
-  console.log("Showing quick view modal")
-}
+// Untuk debugging - uncomment baris di bawah untuk test
+// testAPIEndpoint(1);
